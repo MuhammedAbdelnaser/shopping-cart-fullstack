@@ -41,3 +41,15 @@ exports.getCheckout = (req, res, next) => {
     pageTitle: 'Checkout'
   })
 }
+
+exports.getProduct = (req, res, next) => {
+  const { productId } = req.params
+
+  Product.findById(productId, product => {
+    res.render("shop/product-details", {
+      pageTitle: "Product Details",
+      path: `/products${productId}`,
+      product
+    })
+  })
+}
