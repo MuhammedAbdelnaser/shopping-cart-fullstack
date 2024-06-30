@@ -20,7 +20,7 @@ const getProductsFromFile = cb => {
 }
 
 module.exports = class Product {
-  
+
   constructor(id, title, imageUrl, description, price) {
     this.id = id
     this.title = title
@@ -31,7 +31,7 @@ module.exports = class Product {
 
   save() {
     getProductsFromFile(products => {
-      if(this.id) {
+      if (this.id) {
         const existingProductIndex = products.findIndex(prod => prod.id === this.id
         )
         if (existingProductIndex !== -1) {
