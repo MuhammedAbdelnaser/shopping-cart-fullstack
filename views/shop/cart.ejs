@@ -2,6 +2,28 @@
 </head>
 <body>
   <%- include('../includes/navigation.ejs') %>
-  
-
+  <main>
+    <% if (products.length > 0) { %>
+      <ul>
+        <% products.forEach(({ product, quantity, totalPrice }) => { %>
+          <li>
+            <h3><%= product.title %></h3>
+            <img src="<%= product.imageUrl %>" alt="<%= product.title %>">
+            <p>Price: $<%= product.price %></p>
+            <p>Quantity: <%= quantity %></p>
+            <p>Total Price: $<%= totalPrice %></p>
+            <form action="/cart-delete-item" method="POST">
+              <input type="hidden" name="productId" value="<%= product.id %>">
+              <button type="submit">Remove from Cart</button>
+            </form>
+          </li>
+        <% }) %>
+      </ul>
+      <form action="/create-order" method="POST">
+        <button type="submit">Order Now</button>
+      </form>
+    <% } else { %>
+      <h1>No Products in Cart</h1>
+    <% } %>
+  </main>
 <%- include('../includes/end.ejs') %>
