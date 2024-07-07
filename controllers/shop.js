@@ -3,25 +3,27 @@ const Cart = require('../models/cart');
 
 
 exports.getProducts = (req, res, next) => {
-  const products = Product.fetchAll((products) => {
+  Product.findAll().then((prods) => {
     res.render('shop/product-list', {
       pageTitle: "All Products",
-      prods: products,
+      prods,
       path: "/products"
     });
-  });
-  return products
+  }).catch(err => {
+    console.log('Error Finding Products', err)
+  })
 };
 
 exports.getIndex = (req, res, next) => {
-  const products = Product.fetchAll((products) => {
+  Product.findAll().then((products) => {
     res.render('shop/index', {
       pageTitle: "Shop",
       prods: products,
       path: "/"
     });
-  });
-  return products
+  }).catch(err => {
+    console.log('Error Finding Products', err)
+  })
 }
 
 exports.getCart = (req, res, next) => {
@@ -78,12 +80,17 @@ exports.getCheckout = (req, res, next) => {
 
 exports.getProduct = (req, res, next) => {
   const { productId } = req.params
-
-  Product.findById(productId, product => {
+  Product.findOne({
+    id: productId
+  })
+  .then(product => {
+    console.log('product', product)
     res.render("shop/product-details", {
-      pageTitle: "Product Details",
+      pageTitle: product.title,
       path: `/products${productId}`,
       product
     })
+  }).catch(err => {
+    console.log('Error fetching product', err)
   })
 }

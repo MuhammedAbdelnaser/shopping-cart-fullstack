@@ -10,10 +10,17 @@ exports.getAddProduct = (req, res, next) => {
 
 exports.postAddProduct = (req, res, next) => {
   const {title, imageUrl, price, description } = req.body
-  const product = new Product(null, title, imageUrl, description, price)
-  
-  product.save()
-  res.redirect('/')
+  req.user.createProduct({
+    title,
+    imageUrl,
+    price,
+    description,
+  }).then( () => {
+    console.log('Product Created Successfully')
+    res.redirect('/')
+  }).catch( err => {
+    console.log('Error Creating Product', err)
+  })
 }
 
 exports.getEditProduct = (req, res, next) => {
@@ -22,7 +29,12 @@ exports.getEditProduct = (req, res, next) => {
     return res.redirect('/')
   }
   const { productId } = req.params
-  Product.findById(productId, product => {
+
+  req.user
+  .getProducts({
+    where: { id: productId }
+  }).then(products => {
+    const product = products[0]
     if (!product) {
       // Not the best UX as you should show the error to the user 
       return res.redirect('/')
@@ -34,38 +46,61 @@ exports.getEditProduct = (req, res, next) => {
       editing: editMode
     })
   })
+
 }
 
-exports.postEditProduct = (req, res, next) => {
+exports.postEditProduct = async (req, res, next) => {
   const { productId, title, imageUrl, description, price } = req.body
 
-  const updatedProduct = new Product(
-    productId,
-    title,
-    imageUrl,
-    description,
-    price
-  )
+  try {
+    const product = await Product.findByPk(productId);
 
-  updatedProduct.save()
+    if (!product) {
+      // Handle the case where the product does not exist
+      console.log('Product not found');
+      return res.redirect('/');
+    }
 
-  res.redirect('/admin/products')
+    product.title = title;
+    product.imageUrl = imageUrl;
+    product.description = description;
+    product.price = price;
+
+    await product.save()
+    .then(() => {
+      res.redirect('/admin/products')
+      console.log('PRODUCT UPDATED SUCCESSFULLY')
+    })
+  } catch (err) {
+    console.log('Error Editing Product', err)
+  }
 
 }
 
 exports.deleteProduct = (req, res, next) => {
-  const { productId } = req.body
-  Product.deleteById(productId)
-  res.redirect('/admin/products')
+  const productId = req.body.productId
+  Product.findByPk(productId)
+  .then(product => {
+    return product.destroy()
+  })
+  .then(() => {
+    console.log('PRODUCT DELETED SUCCESSFULLY')
+    res.redirect('/admin/products')
+  }).catch(err => {
+    console.log('Error Deleting Product', err);
+  })
 }
 
 exports.getProducts = (req, res, next) => {
-  const products = Product.fetchAll((products) => {
+  
+  req.user
+  .getProducts().then(products => {
     res.render("admin/products", {
       pageTitle: "Products page for Admin",
       path: '/admin/products',
       products
     })
+  }).catch(err => {
+    console.log('Error loading Admin Products', err)
   })
-  return products
 }
