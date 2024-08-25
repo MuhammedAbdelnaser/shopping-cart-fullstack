@@ -1,9 +1,16 @@
+const mongodb = require('mongodb');
+const mongoClient = mongodb.MongoClient
+require('dotenv').config();
 
-const Sequelize = require('sequelize');
+const mongoConnect = callback => {
+  mongoClient.connect(process.env.MONGODB_URI)
+    .then(client => {
+      console.log("CONNECTED!")
+      callback(client)
+    })
+    .catch(err => {
+      console.log('Error starting the server', err)
+    })
+}
 
-const sequelize = new Sequelize('ecommerce-node', 'root', 'new_password', {
-  host: 'localhost',
-  dialect: 'mysql'
-})
-
-module.exports = sequelize
+module.exports = mongoConnect
