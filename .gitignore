@@ -1,3 +1,4 @@
 node_modules/
 chapter7/
 source/
+.env
