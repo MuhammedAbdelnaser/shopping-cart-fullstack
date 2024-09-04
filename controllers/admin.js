@@ -12,15 +12,16 @@ exports.getAddProduct = (req, res, next) => {
 
 exports.postAddProduct = (req, res, next) => {
   const {title, price, description, imageUrl} = req.body
-  const product = new Product(
+  const product = new Product({
     title,
     price,
     description,
     imageUrl,
-    null,
-    req.user._id
-  );
-  product.save().then( () => {
+    userId: req.user
+  });
+  product
+  .save() // coming from mongoose
+  .then( () => {
     console.log('Product Created Successfully')
     res.redirect('/')
   }).catch( err => {
@@ -52,25 +53,26 @@ exports.getEditProduct = (req, res, next) => {
 
 exports.postEditProduct = async (req, res, next) => {
   const { productId, title, imageUrl, description, price } = req.body
-    const updatedTitle = title;
-    const updatedPrice = price;
-    const updatedDescription = description;
-    const updatedImageUrl = imageUrl;
-    
-    const product = new Product(updatedTitle, updatedPrice, updatedDescription, updatedImageUrl, productId);
-    return product.save()
-      .then(() => {
-        res.redirect('/admin/products')
-        console.log('PRODUCT UPDATED SUCCESSFULLY')
-      })
-      .catch(err => {
-        console.log('Error Updating Product', err)
-      })
+  Product.findById(productId)
+    .then(product => {
+      product.title = title;
+      product.price = price;
+      product.description = description;
+      product.imageUrl = imageUrl;
+      return product.save()
+    })
+    .then(() => {
+      console.log('PRODUCT UPDATED SUCCESSFULLY')
+      res.redirect('/admin/products')
+    })
+    .catch(err => {
+      console.log('Error Updating Product', err)
+    })
 }
 
 exports.deleteProduct = (req, res, next) => {
   const productId = req.body.productId
-  Product.deleteById(productId)
+  Product.findByIdAndDelete(productId)
   .then(() => {
     console.log('PRODUCT DELETED SUCCESSFULLY')
     res.redirect('/admin/products')
@@ -80,11 +82,12 @@ exports.deleteProduct = (req, res, next) => {
 }
 
 exports.getProducts = (req, res, next) => {
-  Product.fetchAll().then(products => {
+  Product.find()
+  .then(products => {
     res.render("admin/products", {
       pageTitle: "Products page for Admin",
       path: '/admin/products',
-      products
+      prods: products
     })
   }).catch(err => {
     console.log('Error loading Admin Products', err)
