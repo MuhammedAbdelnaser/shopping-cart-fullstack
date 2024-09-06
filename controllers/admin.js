@@ -6,12 +6,14 @@ exports.getAddProduct = (req, res, next) => {
   res.render("admin/edit-product", {
     pageTitle: "Add Product",
     path: "/admin/add-product",
-    editing: false
+    editing: false,
+    isAuthenticated: req.session.isLoggedIn
   })
 }
 
 exports.postAddProduct = (req, res, next) => {
   const {title, price, description, imageUrl} = req.body
+  console.log('req.user', req.user)
   const product = new Product({
     title,
     price,
@@ -45,7 +47,8 @@ exports.getEditProduct = (req, res, next) => {
       pageTitle: "Edit Product",
       path: "/admin/edit-product",
       product,
-      editing: editMode
+      editing: editMode,
+      isAuthenticated: req.session.isLoggedIn
     })
   })
 
@@ -87,7 +90,8 @@ exports.getProducts = (req, res, next) => {
     res.render("admin/products", {
       pageTitle: "Products page for Admin",
       path: '/admin/products',
-      prods: products
+      prods: products,
+      isAuthenticated: req.session.isLoggedIn
     })
   }).catch(err => {
     console.log('Error loading Admin Products', err)
