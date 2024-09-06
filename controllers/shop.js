@@ -1,5 +1,6 @@
 const Product = require('../models/product');
 const Order = require('../models/order');
+const User = require('../models/user');
 
 
 exports.getProducts = (req, res, next) => {
@@ -8,7 +9,8 @@ exports.getProducts = (req, res, next) => {
     res.render('shop/product-list', {
       pageTitle: "All Products",
       prods,
-      path: "/products"
+      path: "/products",
+      isAuthenticated: req.session.isLoggedIn
     });
   }).catch(err => {
     console.log('Error Finding Products', err)
@@ -20,7 +22,8 @@ exports.getIndex = (req, res, next) => {
     res.render('shop/index', {
       pageTitle: "Shop",
       prods: products,
-      path: "/"
+      path: "/",
+      isAuthenticated: req.session.isLoggedIn
     });
   }).catch(err => {
     console.log('Error Finding Products', err)
@@ -28,14 +31,15 @@ exports.getIndex = (req, res, next) => {
 }
 
 exports.getCart = (req, res, next) => {
-  req.user
+  User.findById(req.user._id)
     .populate('cart.items.productId')
     .then(user => {
       const products = user.cart.items
       res.render("shop/cart", {
         path: '/cart',
         pageTitle: 'Your Cart',
-        products
+        products,
+        isAuthenticated: req.session.isLoggedIn
       })
     })
     .catch(err => {
@@ -112,19 +116,13 @@ exports.getOrders = (req, res, next) => {
       res.render("shop/orders", {
         path: '/orders',
         pageTitle: 'Your Orders',
-        orders
+        orders,
+        isAuthenticated: req.session.isLoggedIn
       })
     })
     .catch(err => {
       console.log('Error getting orders', err)
     })
-}
-
-exports.getCheckout = (req, res, next) => {
-  res.render("shop/checkout", {
-    path: '/checkout',
-    pageTitle: 'Checkout'
-  })
 }
 
 exports.getProduct = (req, res, next) => {
@@ -135,7 +133,8 @@ exports.getProduct = (req, res, next) => {
       res.render("shop/product-details", {
         pageTitle: product.title,
         path: `/products${productId}`,
-        product
+        product,
+        isAuthenticated: req.session.isLoggedIn
       })
     }).catch(err => {
       console.log('Error fetching product', err)
