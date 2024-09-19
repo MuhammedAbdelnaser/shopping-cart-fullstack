@@ -11,6 +11,8 @@ const userSchema = new Schema({
     type: String,
     required: true
   },
+  resetPasswordToken: String,
+  resetPasswordTokenExpiration: Date,
   cart: {
     items: [{
       productId: {
@@ -87,7 +89,7 @@ userSchema.methods.addOrder = function() {
       items: products,
       user: {
         id: this._id,
-        name: this.name
+        email: this.email
       }
     }
     return db.collection('orders')
