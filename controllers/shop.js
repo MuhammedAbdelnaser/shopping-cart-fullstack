@@ -10,7 +10,7 @@ exports.getProducts = (req, res, next) => {
       pageTitle: "All Products",
       prods,
       path: "/products",
-      isAuthenticated: req.session.isLoggedIn
+      
     });
   }).catch(err => {
     console.log('Error Finding Products', err)
@@ -23,7 +23,7 @@ exports.getIndex = (req, res, next) => {
       pageTitle: "Shop",
       prods: products,
       path: "/",
-      isAuthenticated: req.session.isLoggedIn
+      
     });
   }).catch(err => {
     console.log('Error Finding Products', err)
@@ -39,7 +39,7 @@ exports.getCart = (req, res, next) => {
         path: '/cart',
         pageTitle: 'Your Cart',
         products,
-        isAuthenticated: req.session.isLoggedIn
+        csrfToken: req.csrfToken()
       })
     })
     .catch(err => {
@@ -92,7 +92,7 @@ exports.postOrder = (req, res, next) => {
       const order = new Order({
         products,
         user: {
-          name: req.user.name,
+          email: req.user.email,
           userId: req.user
         }
       })
@@ -117,7 +117,7 @@ exports.getOrders = (req, res, next) => {
         path: '/orders',
         pageTitle: 'Your Orders',
         orders,
-        isAuthenticated: req.session.isLoggedIn
+        
       })
     })
     .catch(err => {
@@ -134,7 +134,7 @@ exports.getProduct = (req, res, next) => {
         pageTitle: product.title,
         path: `/products${productId}`,
         product,
-        isAuthenticated: req.session.isLoggedIn
+        
       })
     }).catch(err => {
       console.log('Error fetching product', err)
